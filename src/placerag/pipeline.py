@@ -1,32 +1,38 @@
-from pathlib import Path
-
-from placerag.config import config
-from placerag.embeddings import EmbeddingModel
 from placerag.llm import LLM
-from placerag.vector_store import VectorStore
+from placerag.search_engine import SearchEngine
 
 
 class RAGPipeline:
-    def __init__(self, index_dir: Path):
-        self.embedding_model = EmbeddingModel()
+    def __init__(self, search_engine: SearchEngine):
+        self.search_engine = search_engine
         self.llm = LLM()
 
-        self.vector_store = VectorStore()
-        self.vector_store.load(index_dir)
-
-    def ask(self, question: str):
-        embedding = self.embedding_model.embed_query(question)
-
-        chunks = self.vector_store.search(
-            embedding,
-            k=config.top_k,
-        )
+    def _retrieve(self, question: str):
+        chunks = self.search_engine.search(question)
 
         context = "\n\n".join(
             chunk.text
             for chunk in chunks
         )
 
-        answer = self.llm.generate(question, context)
+        return context, chunks
+
+    def ask(self, question: str):
+        context, chunks = self._retrieve(question)
+
+        answer = self.llm.generate(
+            question,
+            context,
+        )
 
         return answer, chunks
+
+    def ask_stream(self, question: str):
+        context, chunks = self._retrieve(question)
+
+        stream = self.llm.generate_stream(
+            question,
+            context,
+        )
+
+        return stream, chunks

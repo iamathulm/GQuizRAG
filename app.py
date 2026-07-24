@@ -21,6 +21,7 @@ uploaded_file = st.file_uploader(
 
 if uploaded_file:
 
+    # Save uploaded PDF
     pdf_path = UPLOAD_DIR / uploaded_file.name
 
     if not pdf_path.exists():
@@ -32,22 +33,25 @@ if uploaded_file:
         return manager.open_document(UPLOAD_DIR / pdf_name)
 
     pipeline = load_pipeline(uploaded_file.name)
-    current_doc = uploaded_file.name
 
-    if st.session_state.get("current_doc") != current_doc:
-        st.session_state.current_doc = current_doc
+    # Reset chat if a different document is opened
+    if st.session_state.get("current_doc") != uploaded_file.name:
+        st.session_state.current_doc = uploaded_file.name
         st.session_state.messages = []
 
+    # Initialize chat history
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
+    # Display previous conversation
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.write(message["content"])
 
-    question = st.chat_input("Ask about the document...")
+    # Chat input
+    if question := st.chat_input("Ask about the document..."):
 
-    if question:
+        # Store and display user message
         st.session_state.messages.append(
             {
                 "role": "user",
@@ -58,24 +62,30 @@ if uploaded_file:
         with st.chat_message("user"):
             st.write(question)
 
+        # Generate streamed response
         with st.chat_message("assistant"):
-            with st.spinner("Thinking..."):
-                answer, chunks = pipeline.ask(question)
 
-            st.write(answer)
+            answer, chunks = pipeline.ask(question)
+
+            with st.chat_message("assistant"):
+                st.write(answer)
+
+
             with st.expander("Retrieved Sources"):
-
                 for i, chunk in enumerate(chunks, start=1):
+                    st.markdown(f"#### Chunk {i}")
 
-                    st.markdown(f"### Chunk {i}")
-
-                    st.caption(chunk.source.name)
+                    if hasattr(chunk, "page"):
+                        st.caption(
+                            f"{chunk.source.name} — Page {chunk.page}"
+                        )
+                    else:
+                        st.caption(chunk.source.name)
 
                     st.write(chunk.text)
-
                     st.divider()
-                
 
+        # Save assistant response
         st.session_state.messages.append(
             {
                 "role": "assistant",

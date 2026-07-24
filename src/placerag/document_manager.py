@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from placerag.search_engine import SearchEngine
 from placerag.indexer import DocumentIndexer
 from placerag.pipeline import RAGPipeline
 
@@ -16,4 +17,6 @@ class DocumentManager:
         if not index_file.exists():
             DocumentIndexer().build(pdf_path, index_dir)
 
-        return RAGPipeline(index_dir)
+        engine = SearchEngine(index_dir)
+
+        return RAGPipeline(engine)
