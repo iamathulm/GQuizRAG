@@ -1,26 +1,18 @@
 from pathlib import Path
 
-from placerag.chunker import chunk_document
-from placerag.embeddings import EmbeddingModel
-from placerag.pdf_loader import load_pdf
-from placerag.vector_store import VectorStore
+from placerag.pipeline import RAGPipeline
 
-doc = load_pdf(Path("data/uploads/UNIT-2.pdf"))
+pipeline = RAGPipeline()
 
-chunks = chunk_document(doc)
+pipeline.index_document(
+    Path("data/uploads/UNIT-2.pdf")
+)
 
-model = EmbeddingModel()
+while True:
+    question = input("\nYou: ")
 
-embeddings = model.embed_chunks(chunks)
+    if question.lower() in ("quit", "exit"):
+        break
 
-store = VectorStore()
-store.build(embeddings, chunks)
-
-store.save(Path("data/vectorstore"))
-
-print("Saved!")
-
-loaded = VectorStore()
-loaded.load(Path("data/vectorstore"))
-
-print(f"Loaded {len(loaded.chunks)} chunks.")
+    print()
+    print(pipeline.ask(question))
