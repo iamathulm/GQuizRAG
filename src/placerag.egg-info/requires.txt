@@ -1,0 +1,6 @@
+faiss-cpu>=1.14.3
+numpy>=2.5.1
+ollama>=0.6.2
+pymupdf>=1.28.0
+sentence-transformers>=5.6.1
+streamlit>=1.60.0
