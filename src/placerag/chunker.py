@@ -1,10 +1,10 @@
 from placerag.models import Chunk, Document
-
+from placerag.config import config
 
 def chunk_document(
     document: Document,
-    chunk_size: int = 500,
-    overlap: int = 100,
+    chunk_size: int = config.chunk_size,
+    overlap: int = config.chunk_overlap,
 ) -> list[Chunk]:
     """Split a document into overlapping character chunks."""
 

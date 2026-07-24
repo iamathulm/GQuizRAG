@@ -5,6 +5,8 @@ from placerag.embeddings import EmbeddingModel
 from placerag.llm import LLM
 from placerag.pdf_loader import load_pdf
 from placerag.vector_store import VectorStore
+from placerag.config import config
+
 
 
 class RAGPipeline:
@@ -21,7 +23,7 @@ class RAGPipeline:
 
         self.vector_store.build(embeddings, chunks)
 
-    def ask(self, question: str, k: int = 3) -> str:
+    def ask(self, question: str, k: int = config.top_k) -> str:
         query_embedding = self.embedding_model.embed_query(question)
 
         chunks = self.vector_store.search(query_embedding, k=k)

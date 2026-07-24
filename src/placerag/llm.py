@@ -1,17 +1,21 @@
 import ollama
+from placerag.config import config
 
 
 class LLM:
     def __init__(self, model: str = "gemma3:4b"):
-        self.model = model
+        self.model = model or config.llm_model
 
     def generate(self, question: str, context: str) -> str:
-        prompt = f"""You are a helpful assistant.
+        prompt = f"""You are a helpful teaching assistant.
 
-Answer the user's question using ONLY the context below.
+Use ONLY the provided context to answer the question.
 
-If the answer cannot be found in the context, say:
+If the context does not contain the answer, reply exactly:
 "I couldn't find the answer in the provided document."
+
+Write a clear, complete answer in your own words.
+Do not simply copy the context unless necessary.
 
 Context:
 {context}
@@ -21,6 +25,7 @@ Question:
 
 Answer:
 """
+        
 
         response = ollama.chat(
             model=self.model,
