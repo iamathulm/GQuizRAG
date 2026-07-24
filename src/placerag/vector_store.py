@@ -1,6 +1,7 @@
 import faiss
 import numpy as np
-
+import json
+from pathlib import Path
 from placerag.models import Chunk
 
 
@@ -32,3 +33,46 @@ class VectorStore:
         _, indices = self.index.search(query, k)
 
         return [self.chunks[i] for i in indices[0]]
+
+    def load(self, directory: Path) -> None:
+        """Load the FAISS index and chunk metadata."""
+
+        self.index = faiss.read_index(str(directory / "index.faiss"))
+
+        with open(directory / "chunks.json", encoding="utf-8") as f:
+            metadata = json.load(f)
+
+        self.chunks = [
+            Chunk(
+                text=item["text"],
+                source=Path(item["source"]),
+                page=item["page"],
+                slide=item["slide"],
+            )
+            for item in metadata
+        ]
+
+    def save(self, directory: Path) -> None:
+        """Save the FAISS index and chunk metadata."""
+
+        if self.index is None:
+            raise RuntimeError("Vector store has not been built.")
+
+        directory.mkdir(parents=True, exist_ok=True)
+
+        faiss.write_index(self.index, str(directory / "index.faiss"))
+
+        metadata = []
+
+        for chunk in self.chunks:
+            metadata.append(
+                {
+                    "text": chunk.text,
+                    "source": str(chunk.source),
+                    "page": chunk.page,
+                    "slide": chunk.slide,
+                }
+            )
+
+        with open(directory / "chunks.json", "w", encoding="utf-8") as f:
+            json.dump(metadata, f, ensure_ascii=False, indent=2)
