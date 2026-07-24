@@ -1,18 +1,16 @@
 # Virtual environment
 .venv/
 
-# Python cache
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+
+# Environment variables
+.env
 
 # Streamlit
 .streamlit/
 
-# Local config
-.env
-
-# Uploaded files
+# Project data
 data/uploads/
-
-# Generated vector database
 data/vectorstore/
