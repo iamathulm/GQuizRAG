@@ -1,24 +1,31 @@
 from placerag.models import Chunk, Document
 
 
-def chunk_document(document: Document) -> list[Chunk]:
-    """Split a document into paragraph-sized chunks."""
+def chunk_document(
+    document: Document,
+    chunk_size: int = 500,
+    overlap: int = 100,
+) -> list[Chunk]:
+    """Split a document into overlapping character chunks."""
 
-    paragraphs = document.content.split("\n\n")
+    text = document.content.strip()
 
     chunks = []
+    start = 0
 
-    for paragraph in paragraphs:
-        paragraph = paragraph.strip()
+    while start < len(text):
+        end = start + chunk_size
 
-        if not paragraph:
-            continue
+        chunk_text = text[start:end].strip()
 
-        chunks.append(
-            Chunk(
-                text=paragraph,
-                source=document.source,
+        if chunk_text:
+            chunks.append(
+                Chunk(
+                    text=chunk_text,
+                    source=document.source,
+                )
             )
-        )
+
+        start += chunk_size - overlap
 
     return chunks

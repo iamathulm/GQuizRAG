@@ -1,7 +1,10 @@
 README.md
 pyproject.toml
 src/placerag/__init__.py
+src/placerag/chunker.py
+src/placerag/embeddings.py
 src/placerag/models.py
+src/placerag/pdf_loader.py
 src/placerag.egg-info/PKG-INFO
 src/placerag.egg-info/SOURCES.txt
 src/placerag.egg-info/dependency_links.txt
