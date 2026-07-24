@@ -17,6 +17,5 @@ class DocumentManager:
         if not index_file.exists():
             DocumentIndexer().build(pdf_path, index_dir)
 
-        engine = SearchEngine(index_dir)
-
+        engine = SearchEngine(self.index_root)
         return RAGPipeline(engine)

@@ -22,17 +22,25 @@ class VectorStore:
 
         self.chunks = chunks
 
-    def search(self, embedding: list[float], k: int = 3) -> list[Chunk]:
-        """Return the k most similar chunks."""
+    def search(    self,    embedding: list[float],    k: int = 3,) -> list[tuple[Chunk, float]]:
+        """Return the k most similar chunks and their scores."""
 
         if self.index is None:
             raise RuntimeError("Vector store has not been built.")
 
         query = np.array([embedding], dtype=np.float32)
 
-        _, indices = self.index.search(query, k)
+        scores, indices = self.index.search(query, k)
 
-        return [self.chunks[i] for i in indices[0]]
+        results = []
+
+        for score, index in zip(scores[0], indices[0]):
+            if index == -1:
+                continue
+
+            results.append((self.chunks[index], float(score)))
+
+        return results
 
     def load(self, directory: Path) -> None:
         """Load the FAISS index and chunk metadata."""

@@ -2,20 +2,21 @@ from pathlib import Path
 
 from placerag.config import config
 from placerag.embeddings import EmbeddingModel
-from placerag.vector_store import VectorStore
+from placerag.repository import DocumentRepository
 
 
 class SearchEngine:
-    def __init__(self, index_dir: Path):
+    def __init__(self, vectorstore_dir: Path):
+        print("SearchEngine initialized")
         self.embedding_model = EmbeddingModel()
 
-        self.vector_store = VectorStore()
-        self.vector_store.load(index_dir)
+        self.repository = DocumentRepository(vectorstore_dir)
+        self.repository.load_all()
 
     def search(self, query: str):
         embedding = self.embedding_model.embed_query(query)
 
-        return self.vector_store.search(
+        return self.repository.search(
             embedding,
             k=config.top_k,
         )
