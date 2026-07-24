@@ -1,0 +1,18 @@
+# Virtual environment
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Streamlit
+.streamlit/
+
+# Local config
+.env
+
+# Uploaded files
+data/uploads/
+
+# Generated vector database
+data/vectorstore/
