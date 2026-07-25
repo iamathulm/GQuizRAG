@@ -21,7 +21,8 @@ class SearchEngine:
         query_embedding = self.embedding_model.embed_query(question)
 
         return self.repository.search(
-            query_embedding,
+            query_embedding=query_embedding,
+            query=question,
             k=k,
             documents=documents,
         )

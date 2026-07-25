@@ -1,13 +1,16 @@
 from pathlib import Path
-
+from collections import defaultdict
 from placerag.models import Chunk, SearchResult
 from placerag.vector_store import VectorStore
+from placerag.bm25_store import BM25Store
 
 
 class DocumentRepository:
     def __init__(self, vectorstore_dir: Path):
         self.vectorstore_dir = Path(vectorstore_dir)
+
         self.vector_stores: dict[str, VectorStore] = {}
+        self.bm25_stores: dict[str, BM25Store] = {}
 
     def __len__(self) -> int:
         return len(self.vector_stores)
@@ -16,10 +19,13 @@ class DocumentRepository:
         """Return the names of all indexed documents."""
         return sorted(self.vector_stores.keys())
 
-    def search( self, query_embedding: list[float],  k: int = 5, documents: list[str] | None = None, ) -> list[SearchResult]:
-        """Search all vector stores and return the best matching chunks."""
+    def search(self,query_embedding: list[float],query: str,k: int = 5,documents: list[str] | None = None,) -> list[SearchResult]:
+        """Search using hybrid retrieval (FAISS + BM25)."""
 
-        results = []
+        RRF_K = 60
+
+        fused_scores = defaultdict(float)
+        chunk_lookup = {}
 
         stores = self.vector_stores.items()
 
@@ -30,29 +36,44 @@ class DocumentRepository:
                 if name in documents
             )
 
-        for document_name, store in stores:
-            store_results = store.search(query_embedding, k)
-            results.extend(store_results)
+        for document_name, vector_store in stores:
 
-        # Lower L2 distance = better match
-        results.sort(key=lambda item: item[1])
+            bm25_store = self.bm25_stores[document_name]
 
-        final_results = []
+            semantic_results = vector_store.search(query_embedding, k)
+            lexical_results = bm25_store.search(query, k)
 
-        for chunk, score in results[:k]:
-            final_results.append(
-                SearchResult(
-                    chunk=chunk,
-                    score=score,
-                    document=chunk.source.stem,
-                )
+            # FAISS contribution
+            for rank, (chunk, _) in enumerate(semantic_results, start=1):
+                key = (chunk.source, chunk.text)
+                fused_scores[key] += 1 / (RRF_K + rank)
+                chunk_lookup[key] = chunk
+
+            # BM25 contribution
+            for rank, (chunk, _) in enumerate(lexical_results, start=1):
+                key = (chunk.source, chunk.text)
+                fused_scores[key] += 1 / (RRF_K + rank)
+                chunk_lookup[key] = chunk
+
+        ranked = sorted(
+            fused_scores.items(),
+            key=lambda item: item[1],
+            reverse=True,
+        )
+
+        return [
+            SearchResult(
+                chunk=chunk_lookup[key],
+                score=score,
+                document=chunk_lookup[key].source.stem,
             )
-
-        return final_results
+            for key, score in ranked[:k]
+        ]
 
     
     def load_all(self):
         self.vector_stores.clear()
+        self.bm25_stores.clear()
 
         if not self.vectorstore_dir.exists():
             return
@@ -64,5 +85,9 @@ class DocumentRepository:
             store = VectorStore()
             store.load(index_dir)
             self.vector_stores[index_dir.name] = store
+
+            bm25 = BM25Store()
+            bm25.build(store.chunks)
+            self.bm25_stores[index_dir.name] = bm25
 
         print(f"Loaded {len(self.vector_stores)} vector stores")

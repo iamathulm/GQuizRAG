@@ -93,7 +93,7 @@ if uploaded_file:
 
             **Page:** {page}
 
-            **Retrieval Score (Distance):** {result.score:.3f}
+            **Retrieval Score (RRF):** {result.score:.3f}
             """
                     )
 

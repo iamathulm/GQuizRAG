@@ -6,26 +6,31 @@ class LLM:
     def __init__(self, model: str = "gemma3:4b"):
         self.model = model or config.llm_model
 
+    def _build_prompt(self, question: str, context: str) -> str:
+        return f"""You are a helpful teaching assistant.
+
+            Use ONLY the provided context to answer the question.
+
+            Whenever you use information from a source, cite it inline using its
+            source number, for example [Source 1] or [Source 2].
+
+            If the context does not contain the answer, reply exactly:
+            "I couldn't find the answer in the provided document."
+
+            Write a clear, complete answer in your own words.
+            Do not simply copy the context unless necessary.
+
+            Context:
+            {context}
+
+            Question:
+            {question}
+
+            Answer:
+            """
+
     def generate(self, question: str, context: str) -> str:
-        prompt = f"""You are a helpful teaching assistant.
-
-        Use ONLY the provided context to answer the question.
-        Whenever you use information from a source, cite it inline using its
-        source number, for example [Source 1] or [Source 2].
-        If the context does not contain the answer, reply exactly:
-        "I couldn't find the answer in the provided document."
-
-        Write a clear, complete answer in your own words.
-        Do not simply copy the context unless necessary.
-
-        Context:
-        {context}
-
-        Question:
-        {question}
-
-        Answer:
-"""
+        prompt = self._build_prompt(question, context)
         print("=" * 60)
         print(f"Question: {question}")
         print(f"Context length: {len(context)}")
@@ -47,25 +52,19 @@ class LLM:
         return response["message"]["content"]
 
     def generate_stream(self, question: str, context: str):
-        messages = [
-            {
-                "role": "system",
-                "content": (
-                    "Use only the provided context to answer the user's question. "
-                    "If the answer is not in the context, say you don't know."
-                ),
-            },
-            {
-                "role": "user",
-                "content": f"Context:\n{context}\n\nQuestion: {question}",
-            },
-        ]
+        prompt = self._build_prompt(question, context)
 
         stream = ollama.chat(
             model=config.llm_model,
-            messages=messages,
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt,
+                }
+            ],
             stream=True,
         )
 
         for chunk in stream:
             yield chunk["message"]["content"]
+    
