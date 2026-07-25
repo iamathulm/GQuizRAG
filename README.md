@@ -1,7 +1,5 @@
-# placeRAG
-
-A lightweight Retrieval-Augmented Generation (RAG) chatbot built from scratch in Python.
-
+# GQuizRAG
+GQuizRAG is a local Retrieval-Augmented Generation (RAG) application that allows users to upload PDF documents and quiz themselves using a local LLM.
 ## Goals
 
 - No LangChain

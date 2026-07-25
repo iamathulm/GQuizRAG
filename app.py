@@ -8,11 +8,11 @@ UPLOAD_DIR = Path("data/uploads")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 st.set_page_config(
-    page_title="placeRAG",
+    page_title="GQuizRAG",
     page_icon="📄",
 )
 
-st.title("📄 placeRAG")
+st.title("📚 GQuizRAG")
 
 uploaded_file = st.file_uploader(
     "Upload a PDF",
