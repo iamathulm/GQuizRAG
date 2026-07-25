@@ -1,10 +1,234 @@
 # GQuizRAG
 GQuizRAG is a local Retrieval-Augmented Generation (RAG) application that allows users to upload PDF documents and quiz themselves using a local LLM.
-## Goals
 
-- No LangChain
-- Local LLM via Ollama
-- Streamlit UI
-- FAISS vector search
-- Support for PDFs (and later PPTX/DOCX)
-- Modular architecture
+---
+
+## Features
+
+* 📄 Upload PDF documents
+* 🔍 Hybrid retrieval
+
+  * Semantic search using FAISS
+  * Lexical search using BM25
+  * Reciprocal Rank Fusion (RRF)
+* 🤖 Local LLM inference using Ollama (Gemma 3)
+* 📚 Multi-document search
+* 🎯 Document filtering
+* 📝 Inline source citations
+* 💾 Persistent FAISS indexes
+* 🧪 Unit-tested components
+* 🌐 Streamlit interface
+
+---
+
+## Demo
+
+---
+
+# Architecture
+
+```text
+                PDF
+                 │
+                 ▼
+          PDF Loader
+                 │
+                 ▼
+            Chunker
+                 │
+                 ▼
+      SentenceTransformer
+                 │
+                 ▼
+              FAISS
+                 │
+                 │
+                 ▼
+User Question ─────► Search Engine
+                 │
+        ┌────────┴────────┐
+        ▼                 ▼
+     FAISS             BM25
+        └──────┬─────────┘
+               ▼
+    Reciprocal Rank Fusion
+               ▼
+        Retrieved Chunks
+               ▼
+       Ollama (Gemma 3)
+               ▼
+      Answer + Citations
+```
+
+---
+
+# Project Structure
+
+```text
+placeRAG/
+
+src/
+└── placerag/
+    ├── chunker.py
+    ├── document_manager.py
+    ├── embeddings.py
+    ├── indexer.py
+    ├── llm.py
+    ├── models.py
+    ├── pdf_loader.py
+    ├── pipeline.py
+    ├── repository.py
+    ├── search_engine.py
+    ├── vector_store.py
+    └── bm25_store.py
+
+tests/
+
+app.py
+```
+
+---
+
+# Retrieval Pipeline
+
+The project uses a **hybrid retrieval strategy**.
+
+## Semantic Retrieval
+
+Document chunks are embedded using the Sentence Transformers model:
+
+```
+all-MiniLM-L6-v2
+```
+
+Embeddings are stored in a persistent FAISS index.
+
+---
+
+## Lexical Retrieval
+
+A BM25 index is built from the chunk text to improve keyword-based retrieval.
+
+---
+
+## Hybrid Retrieval
+
+Results from FAISS and BM25 are combined using **Reciprocal Rank Fusion (RRF)**.
+
+This improves retrieval quality without requiring score normalization.
+
+---
+
+# Tech Stack
+
+| Component       | Technology            |
+| --------------- | --------------------- |
+| Language        | Python                |
+| UI              | Streamlit             |
+| Embeddings      | Sentence Transformers |
+| Vector Search   | FAISS                 |
+| Keyword Search  | BM25                  |
+| LLM             | Ollama                |
+| Model           | Gemma 3               |
+| PDF Parsing     | PyMuPDF               |
+| Testing         | Pytest                |
+| Package Manager | uv                    |
+
+---
+
+# Installation
+
+```bash
+git clone https://github.com/<username>/placeRAG.git
+
+cd placeRAG
+
+uv sync
+```
+
+Start Ollama
+
+```bash
+ollama serve
+```
+
+Pull Gemma
+
+```bash
+ollama pull gemma3
+```
+
+Run
+
+```bash
+streamlit run app.py
+```
+
+---
+
+# Usage
+
+1. Upload a PDF.
+2. Wait for indexing.
+3. Ask questions.
+4. View retrieved sources.
+5. Restrict search to selected documents if desired.
+
+---
+
+# Example Questions
+
+```
+What is bounded waiting?
+
+Explain deadlock prevention.
+
+How does Round Robin scheduling work?
+
+Compare paging and segmentation.
+```
+
+---
+
+# Testing
+
+Run
+
+```bash
+uv run pytest
+```
+
+---
+
+# Future Improvements
+
+* Cross-encoder reranking
+* OCR support for scanned PDFs
+* Page-aware chunking for precise citations
+* Table extraction
+* Image retrieval
+* Conversation memory
+
+---
+
+# My learnings
+
+This project was built to understand how Retrieval-Augmented Generation works internally by implementing the retrieval pipeline from scratch instead of relying on high-level frameworks.
+
+It demonstrates:
+
+* modular software design,
+* semantic and lexical retrieval,
+* local LLM inference,
+* hybrid search,
+* document indexing,
+* and retrieval-based question answering.
+
+---
+
+# License
+
+MIT
+
+---
+

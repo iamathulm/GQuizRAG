@@ -8,13 +8,13 @@ Requires-Dist: faiss-cpu>=1.14.3
 Requires-Dist: numpy>=2.5.1
 Requires-Dist: ollama>=0.6.2
 Requires-Dist: pymupdf>=1.28.0
+Requires-Dist: rank-bm25>=0.2.2
 Requires-Dist: sentence-transformers>=5.6.1
 Requires-Dist: streamlit>=1.60.0
+Requires-Dist: torchvision>=0.28.0
 
-# placeRAG
-
-A lightweight Retrieval-Augmented Generation (RAG) chatbot built from scratch in Python.
-
+# GQuizRAG
+GQuizRAG is a local Retrieval-Augmented Generation (RAG) application that allows users to upload PDF documents and quiz themselves using a local LLM.
 ## Goals
 
 - No LangChain
