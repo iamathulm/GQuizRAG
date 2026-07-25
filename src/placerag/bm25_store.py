@@ -1,5 +1,5 @@
 from rank_bm25 import BM25Okapi
-
+import re
 from placerag.models import Chunk
 
 
@@ -9,8 +9,9 @@ class BM25Store:
         self.chunks: list[Chunk] = []
 
     def _tokenize(self, text: str) -> list[str]:
-        return text.lower().split()
+        return re.findall(r'\w+', text.lower())
 
+    
     def build(self, chunks: list[Chunk]) -> None:
         self.chunks = chunks
 
