@@ -25,16 +25,23 @@ class LLM:
 
         Answer:
 """
-
-        response = ollama.chat(
-            model=self.model,
-            messages=[
-                {
-                    "role": "user",
-                    "content": prompt,
-                }
-            ],
-        )
+        print("=" * 60)
+        print(f"Question: {question}")
+        print(f"Context length: {len(context)}")
+        print(f"Prompt length: {len(prompt)}")
+        print("=" * 60)
+        try:
+            response = ollama.chat(
+                model=self.model,
+                messages=[
+                    {
+                        "role": "user",
+                        "content": prompt,
+                    }
+                ],
+            )
+        except ollama.ResponseError as e:
+            return f"Ollama error: {e}"
 
         return response["message"]["content"]
 

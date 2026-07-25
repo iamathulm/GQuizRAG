@@ -1,24 +1,38 @@
 from placerag.llm import LLM
 from placerag.search_engine import SearchEngine
-
+from placerag.models import SearchResult
 
 class RAGPipeline:
     def __init__(self, search_engine: SearchEngine):
         self.search_engine = search_engine
         self.llm = LLM()
 
-    def _retrieve(self, question: str):
-        chunks = self.search_engine.search(question)
-
-        context = "\n\n".join(
-            chunk.text
-            for chunk in chunks
+    def _retrieve(
+        self,
+        question: str,
+        documents: list[str] | None = None,
+    )-> tuple[str, list[SearchResult]]:
+        results = self.search_engine.search(
+            question,
+            documents=documents,
         )
 
-        return context, chunks
+        context = "\n\n".join(
+            result.chunk.text
+            for result in results
+        )
 
-    def ask(self, question: str):
-        context, chunks = self._retrieve(question)
+        return context, results
+
+    def ask(
+        self,
+        question: str,
+        documents: list[str] | None = None,
+    ) -> tuple[str, list[SearchResult]]:
+        context, chunks = self._retrieve(
+            question,
+            documents,
+        )
 
         answer = self.llm.generate(
             question,
@@ -27,8 +41,15 @@ class RAGPipeline:
 
         return answer, chunks
 
-    def ask_stream(self, question: str):
-        context, chunks = self._retrieve(question)
+    def ask_stream(
+        self,
+        question: str,
+        documents: list[str] | None = None,
+    ):
+        context, chunks = self._retrieve(
+            question,
+            documents,
+        )
 
         stream = self.llm.generate_stream(
             question,
@@ -36,3 +57,6 @@ class RAGPipeline:
         )
 
         return stream, chunks
+
+    def list_documents(self) -> list[str]:
+        return self.search_engine.repository.list_documents()

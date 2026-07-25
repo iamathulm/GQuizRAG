@@ -14,3 +14,10 @@ class Chunk:
     source: Path
     page: int | None = None
     slide: int | None = None
+
+
+@dataclass
+class SearchResult:
+    chunk: Chunk
+    score: float
+    document: str

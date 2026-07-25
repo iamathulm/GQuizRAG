@@ -30,9 +30,17 @@ if uploaded_file:
     @st.cache_resource
     def load_pipeline(pdf_name: str):
         manager = DocumentManager()
-        return manager.open_document(UPLOAD_DIR / pdf_name)
+        return manager.open_repository(UPLOAD_DIR / pdf_name)
 
     pipeline = load_pipeline(uploaded_file.name)
+
+    documents = pipeline.list_documents()
+
+    selected_documents = st.sidebar.multiselect(
+        "Search documents",
+        options=documents,
+        default=documents,
+    )
 
     # Reset chat if a different document is opened
     if st.session_state.get("current_doc") != uploaded_file.name:
@@ -48,6 +56,9 @@ if uploaded_file:
         with st.chat_message(message["role"]):
             st.write(message["content"])
 
+    if not selected_documents:
+        st.info("Select at least one document to search.")
+        st.stop()
     # Chat input
     if question := st.chat_input("Ask about the document..."):
 
@@ -65,14 +76,16 @@ if uploaded_file:
         # Generate streamed response
         with st.chat_message("assistant"):
 
-            answer, chunks = pipeline.ask(question)
+            answer, results = pipeline.ask(question, documents=selected_documents,)
+            
 
             with st.chat_message("assistant"):
                 st.write(answer)
 
 
             with st.expander("Retrieved Sources"):
-                for i, chunk in enumerate(chunks, start=1):
+                for i, result in enumerate(results, start=1):
+                    chunk=result.chunk
                     st.markdown(f"#### Chunk {i}")
 
                     if hasattr(chunk, "page"):
