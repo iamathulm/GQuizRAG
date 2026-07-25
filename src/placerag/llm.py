@@ -10,7 +10,8 @@ class LLM:
         prompt = f"""You are a helpful teaching assistant.
 
         Use ONLY the provided context to answer the question.
-
+        Whenever you use information from a source, cite it inline using its
+        source number, for example [Source 1] or [Source 2].
         If the context does not contain the answer, reply exactly:
         "I couldn't find the answer in the provided document."
 

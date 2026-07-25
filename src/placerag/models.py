@@ -21,3 +21,14 @@ class SearchResult:
     chunk: Chunk
     score: float
     document: str
+    @property
+    def source(self) -> Path:
+        return self.chunk.source
+
+    @property
+    def page(self) -> int | None:
+        return self.chunk.page
+
+    @property
+    def text(self) -> str:
+        return self.chunk.text

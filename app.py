@@ -85,19 +85,23 @@ if uploaded_file:
 
             with st.expander("Retrieved Sources"):
                 for i, result in enumerate(results, start=1):
-                    chunk=result.chunk
-                    st.markdown(f"#### Chunk {i}")
+                    page = result.page if result.page is not None else "Unknown"
+                    st.markdown(f"#### Source {i}")
+                    st.markdown(
+                        f"""
+            **Document:** {result.source.stem}
 
-                    if hasattr(chunk, "page"):
-                        st.caption(
-                            f"{chunk.source.name} — Page {chunk.page}"
-                        )
-                    else:
-                        st.caption(chunk.source.name)
+            **Page:** {page}
 
-                    st.write(chunk.text)
+            **Retrieval Score (Distance):** {result.score:.3f}
+            """
+                    )
+
+                    st.write(result.text)
+
                     st.divider()
 
+                    
         # Save assistant response
         st.session_state.messages.append(
             {

@@ -18,9 +18,9 @@ class RAGPipeline:
         )
 
         context = "\n\n".join(
-            result.chunk.text
-            for result in results
-        )
+            f"[Source {i}]\n{result.text}"
+            for i, result in enumerate(results, start=1)
+            )
 
         return context, results
 
