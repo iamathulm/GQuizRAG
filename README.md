@@ -1,5 +1,6 @@
 # GQuizRAG
-GQuizRAG is a local Retrieval-Augmented Generation (RAG) application that allows users to upload PDF documents and quiz themselves using a local LLM.
+GQuizRAG is a Retrieval-Augmented Generation (RAG) application that allows users to upload PDF documents and prepare for quizzes.
+The LLM layer is provider-agnostic. Gemini 3.5 Flash-Lite is the default cloud backend for reliability and response quality, while Ollama is supported as a local inference option.
 
 ---
 
@@ -11,7 +12,7 @@ GQuizRAG is a local Retrieval-Augmented Generation (RAG) application that allows
   * Semantic search using FAISS
   * Lexical search using BM25
   * Reciprocal Rank Fusion (RRF)
-* 🤖 Local LLM inference using Ollama (Gemma 3)
+* 🤖 Cloud inference-Gemini, Local LLM inference using Ollama (Gemma 3)
 * 📚 Multi-document search
 * 🎯 Document filtering
 * 📝 Inline source citations
@@ -55,7 +56,7 @@ User Question ─────► Search Engine
                ▼
         Retrieved Chunks
                ▼
-       Ollama (Gemma 3)
+Gemini 3.5 Flash-Lite / Ollama (Gemma 3)
                ▼
       Answer + Citations
 ```
