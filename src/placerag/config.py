@@ -9,7 +9,7 @@ load_dotenv()
 
 @dataclass(frozen=True)
 class Config:
-    llm_model: str = "gemini-3.5-flash-lite"
+    llm_model: str = "gemini-3.6-flash"
     gemini_api_key: str | None = os.getenv("GEMINI_API_KEY")
 
     embedding_model: str = "all-MiniLM-L6-v2"

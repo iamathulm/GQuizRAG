@@ -1,5 +1,5 @@
 from google import genai
-
+from google.genai import types
 from placerag.config import config
 
 
@@ -14,8 +14,11 @@ class LLM:
         self.model = model or config.llm_model
 
         self.client = genai.Client(
-            api_key=config.gemini_api_key
-        )
+    api_key=config.gemini_api_key,
+    http_options=types.HttpOptions(
+        timeout=30_000,
+    ),
+)
 
     def _build_prompt(self, question: str, context: str) -> str:
         return f"""You are a helpful teaching assistant.
